@@ -1,9 +1,10 @@
 pipeline {
     agent any
+
     stages {
-        stage('Build') {
+        stage('Test') {
             steps {
-                bat 'set'
+                bat 'docker run --rm node:24.21.0-alpine3.24 node --eval "console.log(process.arch,process.platform)"'
             }
         }
     }
