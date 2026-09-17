@@ -1,18 +1,24 @@
 pipeline {
     agent any
 
-    environment {
-        DISABLE_AUTH = 'true'
-        DB_ENGINE = 'sqlite'
-    }
-
     stages {
         stage('Build') {
             steps {
-                echo "Database engine is ${DB_ENGINE}"
-                echo "DISABLE_AUTH is ${DISABLE_AUTH}"
-                bat 'set'
+                bat 'docker run --rm -v "%CD%:/workspace" -w /workspace gradle:8.14.3-jdk21 gradle build'
             }
+        }
+
+        stage('Test') {
+            steps {
+                bat 'docker run --rm -v "%CD%:/workspace" -w /workspace gradle:8.14.3-jdk21 gradle check'
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
+            junit 'build/reports/**/*.xml'
         }
     }
 }
