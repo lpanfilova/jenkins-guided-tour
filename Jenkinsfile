@@ -2,23 +2,33 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('No-op') {
             steps {
-                bat 'docker run --rm -v "%CD%:/workspace" -w /workspace gradle:8.14.3-jdk21 gradle build'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                bat 'docker run --rm -v "%CD%:/workspace" -w /workspace gradle:8.14.3-jdk21 gradle check'
+                bat 'dir'
             }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
-            junit 'build/reports/**/*.xml'
+            echo 'One way or another, I have finished'
+            deleteDir()
+        }
+
+        success {
+            echo 'I succeeded!'
+        }
+
+        unstable {
+            echo 'I am unstable :/'
+        }
+
+        failure {
+            echo 'I failed :('
+        }
+
+        changed {
+            echo 'Things were different before...'
         }
     }
 }
